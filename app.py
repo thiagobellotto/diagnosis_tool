@@ -1,13 +1,34 @@
 import streamlit as st
 from openai import OpenAI
 from gpt import get_diagnosis
+from gsheets import authenticate_google_sheets, save_to_google_sheet
 
-
-# Obtenha as chaves secretas do Streamlit Secrets
 API_KEY = st.secrets["api_key"]
 ASSISTANT_ID = st.secrets["assistant_id"]
-
+EXCEL_NAME = st.secrets["excel_name"]
+CREDS = st.secrets["gcp_service_account"]
 client = OpenAI(api_key=API_KEY)
+
+
+def trim_text(text):
+    """
+    Trims the input text by removing leading/trailing whitespace, extra spaces,
+    and unnecessary line breaks, and condensing the content for cleaner storage.
+    """
+    # Remove leading and trailing whitespace
+    trimmed_text = text.strip()
+
+    # Replace multiple spaces with a single space
+    trimmed_text = " ".join(trimmed_text.split())
+
+    # Optionally, remove excessive line breaks (you can customize this)
+    trimmed_text = trimmed_text.replace("\n", " ").replace("\r", "")
+
+    # Further trimming for specific formats, if needed
+    # (e.g., remove unwanted punctuation, extra tabs, etc.)
+
+    return trimmed_text
+
 
 # Configuração da interface do Streamlit
 st.title("Diagnóstico Assistido por IA")
@@ -46,5 +67,7 @@ patient_data = f"""
 if st.button("Obter Diagnóstico"):
     # Enviar dados para a API e mostrar o resultado
     st.write("Consultando o diagnóstico...")
-    response = get_diagnosis(client, patient_data, ASSISTANT_ID)
-    st.write(response)
+    api_response = get_diagnosis(client, patient_data, ASSISTANT_ID)
+    st.write(api_response)
+    sheet = authenticate_google_sheets(CREDS, EXCEL_NAME)
+    save_to_google_sheet(sheet, trim_text(patient_data), trim_text(api_response))
