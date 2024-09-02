@@ -1,6 +1,6 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def trim_text(text, remove_multiple_lines=False):
@@ -37,7 +37,7 @@ def authenticate_google_sheets(gcp_service_account, sheet_name):
 
 
 def save_to_google_sheet(sheet, gpt_dict):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
         gpt_dict["id"],
@@ -52,6 +52,7 @@ def save_to_google_sheet(sheet, gpt_dict):
         gpt_dict["total_cost"],
         gpt_dict["temperature"],
         gpt_dict["top_p"],
+        gpt_dict["model"],
     ]
 
     sheet.append_row(row)

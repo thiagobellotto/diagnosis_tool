@@ -31,15 +31,16 @@ def get_diagnosis(client, input, assistant_id):
     run = client.beta.threads.runs.create(
         thread_id=thread.id, assistant_id=assistant_id
     )
-    print(f"👉 Run Created: {run.id}")
+    # print(f"👉 Run Created: {run.id}")
 
     ## Wait for run to complete.
     while run.status != "completed":
         run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
-        print(f"🏃 Run Status: {run.status}")
+        # print(f"🏃 Run Status: {run.status}")
         sleep(0.5)
     else:
-        print(f"🏁 Run Completed!")
+        # print(f"🏁 Run Completed!")
+        pass
 
     ## Get the latest message from the thread.
     message_response = client.beta.threads.messages.list(thread_id=thread.id)
@@ -58,6 +59,7 @@ def get_diagnosis(client, input, assistant_id):
         "total_cost": calculate_cost(run.usage.total_tokens),
         "temperature": run.temperature,
         "top_p": run.top_p,
+        "model": run.model,
     }
 
     return gpt_dict

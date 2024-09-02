@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 import json
 from gpt import get_diagnosis
+from datetime import datetime
 from gsheets import authenticate_google_sheets, save_to_google_sheet
 
 API_KEY = st.secrets["api_key"]
@@ -71,7 +72,11 @@ st.subheader("Insira as informações do paciente para obter uma análise clíni
 st.checkbox("Inserir Texto Padrão?", on_change=toggle_defaults)
 
 ## Define default values based on session state
-default_data_nascimento = "05/09/1974" if st.session_state.use_default else ""
+default_data_nascimento = (
+    datetime(year=1974, month=9, day=5)
+    if st.session_state.use_default
+    else datetime.today()
+)
 default_genero = "Feminino" if st.session_state.use_default else ""
 default_problemas = (
     "Fadiga constante, ganho de peso sem mudanças na dieta, pele seca, queda de cabelo, intolerância ao frio, dores musculares e articulares frequentes, e constipação."
@@ -96,35 +101,48 @@ default_habitos = (
 )
 
 ## User Inputs
-data_nascimento = st.text_input("Data de Nascimento", value=default_data_nascimento)
+data_nascimento = st.date_input(
+    "Data de Nascimento",
+    value=default_data_nascimento,
+    format="DD/MM/YYYY",
+    max_value=datetime.today(),
+)
 genero = st.selectbox(
     "Gênero", ["Feminino", "Masculino"], index=0 if default_genero == "Feminino" else 1
 )
-problemas = st.text_area("Problemas Relatados", value=default_problemas)
-alergias = st.text_input("Alergias", value=default_alergias)
-medicacoes = st.text_input("Medicações em Uso", value=default_medicacoes)
+problemas = st.text_area("Problemas Relatados", value=default_problemas, max_chars=300)
+alergias = st.text_input("Alergias", value=default_alergias, max_chars=300)
+medicacoes = st.text_input("Medicações em Uso", value=default_medicacoes, max_chars=300)
 historico_familiar = st.text_input(
-    "Histórico Familiar", value=default_historico_familiar
+    "Histórico Familiar", value=default_historico_familiar, max_chars=300
 )
-habitos = st.text_area("Hábitos", value=default_habitos)
+habitos = st.text_area("Hábitos", value=default_habitos, max_chars=300)
 
 ## Button to toggle SOAP fields
-st.button("Mostrar/Ocultar Campos SOAP", on_click=toggle_soap)
+st.checkbox("Mostrar Campos SOAP?", on_change=toggle_soap)
 
 ## Optional SOAP Fields
 if st.session_state.show_soap:
     st.subheader("Informações SOAP (Opcional)")
     subjective = st.text_area(
-        "Subjetivo (S) - Descrição dos sintomas relatados pelo paciente:"
+        "Subjetivo (S) - Descrição dos sintomas relatados pelo paciente:",
+        help="Inclua sintomas relatados pelo paciente, como dores, desconfortos, cansaço, e outras queixas subjetivas. Ex: Paciente relata dor de cabeça frequente e cansaço ao subir escadas.",
+        max_chars=500,
     )
     objective = st.text_area(
-        "Objetivo (O) - Observações clínicas e exames físicos realizados na consulta:"
+        "Objetivo (O) - Observações clínicas e exames físicos realizados na consulta:",
+        help="Registre sinais clínicos e achados observados pelo profissional de saúde, como febre, pressão arterial, resultados de exames físicos. Ex: Paciente apresenta palidez e pressão arterial levemente elevada.",
+        max_chars=400,
     )
     assessment = st.text_area(
-        "Avaliação (A) - Diagnóstico preliminar ou hipóteses diagnósticas:"
+        "Avaliação (A) - Diagnóstico preliminar ou hipóteses diagnósticas:",
+        help="Informe as hipóteses diagnósticas baseadas nos sintomas e sinais observados. Ex: Suspeita de hipertensão arterial devido aos sintomas relatados e observações clínicas.",
+        max_chars=300,
     )
     plan = st.text_area(
-        "Plano (P) - Tratamentos propostos, exames adicionais ou encaminhamentos:"
+        "Plano (P) - Tratamentos propostos, exames adicionais ou encaminhamentos:",
+        help="Descreva os próximos passos, incluindo exames adicionais, tratamento inicial, ou recomendações para especialistas. Ex: Solicitar exame de sangue completo e iniciar tratamento com antihipertensivo.",
+        max_chars=400,
     )
 else:
     ## Set SOAP fields to empty if not used
@@ -135,7 +153,7 @@ else:
 
 ## Create a dictionary with all the patient data
 patient_data_dict = {
-    "data_nascimento": data_nascimento,
+    "data_nascimento": str(data_nascimento),
     "genero": genero,
     "problemas": problemas,
     "alergias": alergias,
@@ -152,8 +170,8 @@ patient_data_dict = {
 patient_data_json = json.dumps(patient_data_dict, ensure_ascii=False, indent=4)
 
 if st.button("Obter Diagnóstico"):
-    st.write("Consultando o diagnóstico...")
-    gpt_dict = get_diagnosis(client, patient_data_json, ASSISTANT_ID)
-    st.write(gpt_dict["gpt_message"])
-    sheet = authenticate_google_sheets(CREDS, EXCEL_NAME)
-    save_to_google_sheet(sheet, gpt_dict)
+    with st.spinner("Consultando o diagnóstico..."):
+        gpt_dict = get_diagnosis(client, patient_data_json, ASSISTANT_ID)
+        st.write(gpt_dict["gpt_message"])
+        sheet = authenticate_google_sheets(CREDS, EXCEL_NAME)
+        save_to_google_sheet(sheet, gpt_dict)
