@@ -5,5 +5,3 @@ secondaryBackgroundColor="#2a4a46"
 textColor="#FFFFFF"
 font="sans serif"
 
-[server]
-port = 8501
