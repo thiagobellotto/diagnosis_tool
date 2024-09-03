@@ -36,7 +36,7 @@ def authenticate_google_sheets(gcp_service_account, sheet_name):
     return last_sheet
 
 
-def save_to_google_sheet(sheet, gpt_dict):
+def save_to_google_sheet(sheet, gpt_dict, user_email):
     timestamp = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
@@ -53,6 +53,7 @@ def save_to_google_sheet(sheet, gpt_dict):
         gpt_dict["temperature"],
         gpt_dict["top_p"],
         gpt_dict["model"],
+        user_email,
     ]
 
     sheet.append_row(row)
