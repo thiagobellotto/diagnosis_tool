@@ -11,6 +11,14 @@ EXCEL_NAME = st.secrets["excel_name"]
 CREDS = st.secrets["gcp_service_account"]
 client = OpenAI(api_key=API_KEY)
 
+# Set the sidebar to be collapsed by default
+st.set_page_config(
+    page_title="Diagnóstico Assistido por IA",
+    page_icon="🩺",
+    layout="centered",
+    initial_sidebar_state="auto",
+)
+
 footer = """<style>
 a:link, a:visited {
     color: white;
@@ -38,7 +46,7 @@ a:hover, a:active {
 </style>
 
 <div class="footer">
-    <p style="margin: 0;">Developed by</p>
+    <p style="margin: 0;">Desenvolvido por</p>
     <a href="https://www.linkedin.com/in/thiago-bellotto/" target="_blank">Thiago Bellotto Rosa</a>
 </div>
 """
@@ -68,8 +76,22 @@ def toggle_soap():
 
 ## Configuração da interface do Streamlit
 st.title("Diagnóstico Assistido por IA")
-st.subheader("Insira as informações do paciente para obter uma análise clínica")
 st.checkbox("Inserir Texto Padrão?", on_change=toggle_defaults)
+
+## Add the "About the App" section to the sidebar
+with st.sidebar:
+    st.header("Sobre o App")
+    st.sidebar.info(
+        """
+        Este aplicativo é uma ferramenta experimental desenvolvida para auxiliar profissionais de saúde na análise de informações clínicas e na sugestão de diagnósticos potenciais com o apoio de inteligência artificial.
+
+        O objetivo do app é fornecer insights diagnósticos **preliminares**, baseados nas informações inseridas e nas notas SOAP (Subjetivo, Objetivo, Avaliação, e Plano).
+
+        Importante: Este aplicativo é experimental e deve ser usado como um suporte complementar.
+
+        Desenvolvido por [Thiago Bellotto Rosa](https://www.linkedin.com/in/thiago-bellotto/)
+        """
+    )
 
 ## Define default values based on session state
 default_data_nascimento = (
@@ -170,6 +192,7 @@ patient_data_dict = {
 patient_data_json = json.dumps(patient_data_dict, ensure_ascii=False, indent=4)
 
 if st.button("Obter Diagnóstico"):
+    st.divider()
     with st.spinner("Consultando o diagnóstico..."):
         gpt_dict = get_diagnosis(client, patient_data_json, ASSISTANT_ID)
         st.write(gpt_dict["gpt_message"])
