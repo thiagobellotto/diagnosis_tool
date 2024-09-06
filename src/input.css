@@ -3,24 +3,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Basic Dark Mode Styles */
-body.dark-mode {
+/* Custom Dark Mode Styles (if not using Tailwind's built-in dark utilities) */
+body.dark {
   background-color: #1f2937; /* Dark background */
   color: #f9fafb; /* Light text */
 }
 
-body.dark-mode a {
+body.dark a {
   color: #9ca3af; /* Adjust link color for dark mode */
 }
 
-body.dark-mode .bg-white {
-  background-color: #374151; /* Adjusting Tailwind classes in dark mode */
+/* Adjusting Tailwind classes specifically for dark mode */
+.dark .bg-white {
+  @apply bg-gray-800; /* Uses Tailwind's utility to set a dark background */
 }
 
-body.dark-mode .text-gray-900 {
-  color: #f3f4f6; /* Adjust text color for dark mode */
+.dark .text-gray-900 {
+  @apply text-gray-100; /* Light text for dark mode */
 }
 
-body.dark-mode .bg-gray-200 {
-  background-color: #4b5563; /* Darker gray background */
+.dark .bg-gray-200 {
+  @apply bg-gray-700; /* Adjust gray background for dark mode */
 }
