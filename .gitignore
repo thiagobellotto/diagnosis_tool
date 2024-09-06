@@ -3,3 +3,5 @@
 __pycache__
 *.ipynb
 *.txt
+node_modules/
+.DS_Store
