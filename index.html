@@ -440,8 +440,12 @@
       // Check for previously saved theme in localStorage
       const currentTheme = localStorage.getItem("theme");
 
+      // Set the theme based on the stored value; default to light if none
       if (currentTheme === "dark") {
         rootElement.classList.add("dark");
+      } else {
+        rootElement.classList.remove("dark"); // Ensure the default theme is light
+        localStorage.setItem("theme", "light"); // Explicitly set light mode as default if none is stored
       }
 
       // Event listener for the dark mode toggle button
