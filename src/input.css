@@ -1,0 +1,26 @@
+/* Tailwind CSS setup in src/input.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basic Dark Mode Styles */
+body.dark-mode {
+  background-color: #1f2937; /* Dark background */
+  color: #f9fafb; /* Light text */
+}
+
+body.dark-mode a {
+  color: #9ca3af; /* Adjust link color for dark mode */
+}
+
+body.dark-mode .bg-white {
+  background-color: #374151; /* Adjusting Tailwind classes in dark mode */
+}
+
+body.dark-mode .text-gray-900 {
+  color: #f3f4f6; /* Adjust text color for dark mode */
+}
+
+body.dark-mode .bg-gray-200 {
+  background-color: #4b5563; /* Darker gray background */
+}
