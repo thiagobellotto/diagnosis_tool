@@ -22,6 +22,36 @@ def toggle_soap():
     st.session_state.show_soap = not st.session_state.show_soap
 
 
+## Function to calculate age
+def calculate_age(birth_date):
+    today = datetime.now().date()
+    delta = today - birth_date
+
+    ## If less than one month, show in days
+    if delta.days < 30:
+        return {"Idade": f"{delta.days} Dias", "Faixa Etária": "Newborn"}
+
+    ## If less than one year, show in months
+    if delta.days < 365:
+        months = delta.days // 30
+        return {"Idade": f"{months} Meses", "Faixa Etária": "Infant"}
+
+    ## Otherwise, show in years
+    years = delta.days // 365
+    if 1 <= years < 3:
+        return {"Idade": f"{years} Anos", "Faixa Etária": "Toddler"}
+    elif 3 <= years < 6:
+        return {"Idade": f"{years} Anos", "Faixa Etária": "Preschooler"}
+    elif 6 <= years < 13:
+        return {"Idade": f"{years} Anos", "Faixa Etária": "School-aged child"}
+    elif 13 <= years < 19:
+        return {"Idade": f"{years} Anos", "Faixa Etária": "Teenager"}
+    elif 19 <= years < 65:
+        return {"Idade": f"{years} Anos", "Faixa Etária": "Adult"}
+    else:
+        return {"Idade": f"{years} Anos", "Faixa Etária": "Senior"}
+
+
 # Set the sidebar to be collapsed by default
 st.set_page_config(
     page_title="Diagnóstico Assistido por IA",
@@ -150,6 +180,7 @@ else:
         format="DD/MM/YYYY",
         max_value=datetime.today(),
     )
+    age = calculate_age(data_nascimento)
     genero = st.selectbox(
         "Gênero",
         ["Feminino", "Masculino"],
@@ -202,7 +233,8 @@ else:
 
     ## Create a dictionary with all the patient data
     patient_data_dict = {
-        "data_nascimento": str(data_nascimento),
+        "idade": age["Idade"],
+        "faixa_etaria": age["Faixa Etária"],
         "genero": genero,
         "problemas": problemas,
         "alergias": alergias,
